@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SwiftHaul Freight — Fast, Reliable Delivery</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: Arial, sans-serif; color: #222; line-height: 1.6; }
+  header { background: #0b2545; color: #fff; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+  header h1 { font-size: 1.4rem; }
+  nav a { color: #fff; margin-left: 1.2rem; text-decoration: none; }
+  nav a:hover { text-decoration: underline; }
+  .hero { background: #13315c; color: #fff; text-align: center; padding: 4rem 2rem; }
+  .hero h2 { font-size: 2.2rem; margin-bottom: 1rem; }
+  .hero p { font-size: 1.1rem; margin-bottom: 1.5rem; }
+  .btn { background: #ff6b35; color: #fff; padding: 0.8rem 1.8rem; border: none; border-radius: 5px; font-size: 1rem; cursor: pointer; text-decoration: none; display: inline-block; }
+  .btn:hover { background: #e55a2b; }
+  .track { padding: 3rem 2rem; max-width: 600px; margin: auto; text-align: center; }
+  .track h2 { margin-bottom: 1rem; }
+  .track-form { display: flex; gap: 0.5rem; justify-content: center; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .track-form input { padding: 0.8rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 5px; width: 260px; }
+  #track-result { text-align: left; background: #f4f4f4; border-radius: 8px; padding: 1.5rem; display: none; }
+  #track-result h3 { color: #0b2545; margin-bottom: 0.5rem; }
+  #track-result .status { font-weight: bold; color: #ff6b35; margin-bottom: 1rem; }
+  #track-result ul { list-style: none; }
+  #track-result li { padding: 0.5rem 0; border-bottom: 1px solid #ddd; }
+  #track-result li:last-child { border-bottom: none; }
+  #track-result .error { color: #c00; font-weight: bold; }
+  .services { padding: 3rem 2rem; max-width: 1000px; margin: auto; }
+  .services h2 { text-align: center; margin-bottom: 2rem; }
+  .cards { display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center; }
+  .card { background: #f4f4f4; border-radius: 8px; padding: 1.5rem; width: 280px; text-align: center; }
+  .card h3 { margin-bottom: 0.5rem; color: #0b2545; }
+  .about { background: #eef2f7; padding: 3rem 2rem; text-align: center; }
+  .about h2 { margin-bottom: 1rem; }
+  .contact { padding: 3rem 2rem; max-width: 600px; margin: auto; text-align: center; }
+  .contact h2 { margin-bottom: 1rem; }
+  footer { background: #0b2545; color: #fff; text-align: center; padding: 1rem; font-size: 0.9rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>SwiftHaul Freight</h1>
+  <nav>
+    <a href="#track">Track</a>
+    <a href="#services">Services</a>
+    <a href="#about">About</a>
+    <a href="#contact">Contact</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <h2>Freight Delivery You Can Trust</h2>
+  <p>Fast, safe, and affordable shipping for businesses of every size.</p>
+  <a href="#track" class="btn">Track Your Package</a>
+</section>
+
+<section class="track" id="track">
+  <h2>Track Your Package</h2>
+  <p>Enter your tracking code below to see your shipment status.</p>
+  <br>
+  <div class="track-form">
+    <input type="text" id="tracking-code" placeholder="e.g. SH123456">
+    <button class="btn" onclick="trackPackage()">Track</button>
+  </div>
+  <div id="track-result"></div>
+</section>
+
+<section class="services" id="services">
+  <h2>Our Services</h2>
+  <div class="cards">
+    <div class="card">
+      <h3>Local Delivery</h3>
+      <p>Same-day and next-day delivery within the city.</p>
+    </div>
+    <div class="card">
+      <h3>Interstate Freight</h3>
+      <p>Reliable long-haul transport across the country.</p>
+    </div>
+    <div class="card">
+      <h3>Warehousing</h3>
+      <p>Secure storage with easy pickup and dispatch.</p>
+    </div>
+  </div>
+</section>
+
+<section class="about" id="about">
+  <h2>About Us</h2>
+  <p>SwiftHaul Freight is a startup built to make shipping simple. We combine modern logistics with personal service to move your goods on time, every time.</p>
+</section>
+
+<section class="contact" id="contact">
+  <h2>Contact Us</h2>
+  <p>Email: Trybnetwork@gmail.com</p>
+  <p>Phone: +12817898448</p>
+  <p>HQ Address: Florida, USA</p>
+</section>
+
+<footer>
+  <p>&copy; 2026 SwiftHaul Freight. All rights reserved.</p>
+</footer>
+
+<script>
+// ---- Shipment database ----
+// Add your real shipments here. Each tracking code maps to its details.
+// NOTE: keys with spaces must be wrapped in quotes, e.g. "Clearance Fee".
+
+var TRACKING_DB = {
+  "SH0016499": {
+    status: "In Transit",
+    origin: "London, UK",
+    destination: "Texas, USA",
+    events: [
+      ["2026-10-01 08:00", "Package picked up in London"],
+      ["2026-10-01 14:30", "Departed London hub"],
+      ["2026-10-02 09:15", "Arrived at London transit hub"]
+    ]
+  },
+  "SH789012": {
+    status: "On Hold",
+    "Reason": "Awaiting Custom Clearance",
+    "Clearance Fee": "$2,010.00",
+    events: [
+      ["2026-09-28 10:00", "Package picked up in Texas Warehouse"],
+      ["2026-09-29 16:45", "Out for delivery in Magnolia"],
+      ["2026-09-29 18:20", "Delivered — signed by recipient"]
+    ]
+  }
+};
+
+// Merge shipments saved in this browser (added via the admin form)
+try {
+  var saved = JSON.parse(localStorage.getItem("swifthaul_shipments") || "{}");
+  for (var code in saved) { TRACKING_DB[code] = saved[code]; }
+} catch (e) {}
+
+function trackPackage() {
+  var code = document.getElementById("tracking-code").value.trim().toUpperCase();
+  var box = document.getElementById("track-result");
+  box.style.display = "block";
+  if (!code) {
+    box.innerHTML = '<p class="error">Please enter a tracking code.</p>';
+    return;
+  }
+  var pkg = TRACKING_DB[code];
+  if (!pkg) {
+    box.innerHTML = '<p class="error">No shipment found for code "' + code + '". Please check the code and try again.</p>';
+    return;
+  }
+  var html = "<h3>Tracking: " + code + "</h3>"
+    + '<p class="status">Status: ' + pkg.status + "</p>"
+    + "<p><strong>From:</strong> " + pkg.origin + " &nbsp; <strong>To:</strong> " + pkg.destination + "</p>";
+  if (pkg["Reason"]) html += "<p><strong>Reason:</strong> " + pkg["Reason"] + "</p>";
+  if (pkg["Clearance Fee"]) html += "<p><strong>Clearance Fee:</strong> " + pkg["Clearance Fee"] + "</p>";
+  html += "<br><ul>";
+  pkg.events.forEach(function (ev) {
+    html += "<li><strong>" + ev[0] + "</strong> — " + ev[1] + "</li>";
+  });
+  box.innerHTML = html + "</ul>";
+}
+
+// Allow pressing Enter in the input to track
+document.getElementById("tracking-code").addEventListener("keydown", function (e) {
+  if (e.key === "Enter") trackPackage();
+});
+</script>
+
+</body>
+</html>
