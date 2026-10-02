@@ -4,45 +4,120 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SwiftHaul Freight — Fast, Reliable Delivery</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: Arial, sans-serif; color: #222; line-height: 1.6; }
-  header { background: #0b2545; color: #fff; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
-  header h1 { font-size: 1.4rem; }
-  nav a { color: #fff; margin-left: 1.2rem; text-decoration: none; }
-  nav a:hover { text-decoration: underline; }
-  .hero { background: #13315c; color: #fff; text-align: center; padding: 4rem 2rem; }
-  .hero h2 { font-size: 2.2rem; margin-bottom: 1rem; }
-  .hero p { font-size: 1.1rem; margin-bottom: 1.5rem; }
-  .btn { background: #ff6b35; color: #fff; padding: 0.8rem 1.8rem; border: none; border-radius: 5px; font-size: 1rem; cursor: pointer; text-decoration: none; display: inline-block; }
-  .btn:hover { background: #e55a2b; }
-  .track { padding: 3rem 2rem; max-width: 600px; margin: auto; text-align: center; }
-  .track h2 { margin-bottom: 1rem; }
-  .track-form { display: flex; gap: 0.5rem; justify-content: center; margin-bottom: 1.5rem; flex-wrap: wrap; }
-  .track-form input { padding: 0.8rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 5px; width: 260px; }
-  #track-result { text-align: left; background: #f4f4f4; border-radius: 8px; padding: 1.5rem; display: none; }
-  #track-result h3 { color: #0b2545; margin-bottom: 0.5rem; }
-  #track-result .status { font-weight: bold; color: #ff6b35; margin-bottom: 1rem; }
-  #track-result ul { list-style: none; }
-  #track-result li { padding: 0.5rem 0; border-bottom: 1px solid #ddd; }
-  #track-result li:last-child { border-bottom: none; }
-  #track-result .error { color: #c00; font-weight: bold; }
-  .services { padding: 3rem 2rem; max-width: 1000px; margin: auto; }
-  .services h2 { text-align: center; margin-bottom: 2rem; }
-  .cards { display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center; }
-  .card { background: #f4f4f4; border-radius: 8px; padding: 1.5rem; width: 280px; text-align: center; }
-  .card h3 { margin-bottom: 0.5rem; color: #0b2545; }
-  .about { background: #eef2f7; padding: 3rem 2rem; text-align: center; }
-  .about h2 { margin-bottom: 1rem; }
-  .contact { padding: 3rem 2rem; max-width: 600px; margin: auto; text-align: center; }
-  .contact h2 { margin-bottom: 1rem; }
-  footer { background: #0b2545; color: #fff; text-align: center; padding: 1rem; font-size: 0.9rem; }
+  :root {
+    --navy: #0b2545; --navy-dark: #071a33; --orange: #ff6b35; --orange-dark: #e55a2b;
+    --bg: #f4f6fa; --card: #ffffff; --text: #1e2a3a; --muted: #64748b;
+    --green: #16a34a; --blue: #2563eb; --amber: #d97706; --red: #dc2626;
+  }
+  body { font-family: "Segoe UI", Arial, Helvetica, sans-serif; color: var(--text); line-height: 1.6; background: var(--bg); }
+
+  /* Header */
+  header { background: var(--navy); color: #fff; padding: 0.9rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 12px rgba(0,0,0,.25); }
+  .logo { display: flex; align-items: center; gap: .6rem; font-size: 1.35rem; font-weight: 800; letter-spacing: .5px; }
+  .logo-mark { width: 34px; height: 34px; border-radius: 8px; background: var(--orange); display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.1rem; }
+  nav a { color: #fff; margin-left: 1.4rem; text-decoration: none; font-weight: 600; font-size: .95rem; opacity: .9; }
+  nav a:hover { opacity: 1; color: var(--orange); }
+
+  /* Hero */
+  .hero { position: relative; color: #fff; text-align: center; padding: 6rem 2rem; background: url("img/hero.webp") center/cover no-repeat, var(--navy-dark); }
+  .hero::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(7,26,51,.72), rgba(7,26,51,.55)); }
+  .hero > * { position: relative; }
+  .hero h2 { font-size: 2.8rem; margin-bottom: 1rem; font-weight: 800; }
+  .hero h2 span { color: var(--orange); }
+  .hero p { font-size: 1.15rem; margin-bottom: 2rem; opacity: .92; max-width: 640px; margin-left: auto; margin-right: auto; }
+  .btn { background: var(--orange); color: #fff; padding: 0.85rem 2rem; border: none; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-block; transition: transform .15s, background .15s; }
+  .btn:hover { background: var(--orange-dark); transform: translateY(-2px); }
+  .btn-ghost { background: transparent; border: 2px solid #fff; margin-left: .8rem; }
+  .btn-ghost:hover { background: rgba(255,255,255,.12); }
+  .hero-pills { margin-top: 2.2rem; display: flex; gap: .8rem; justify-content: center; flex-wrap: wrap; }
+  .pill { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); padding: .45rem 1.1rem; border-radius: 999px; font-size: .88rem; font-weight: 600; backdrop-filter: blur(4px); }
+
+  /* Track */
+  .track { padding: 4rem 2rem; max-width: 900px; margin: auto; }
+  .track h2, .services h2, .about h2, .contact h2 { text-align: center; margin-bottom: .6rem; font-size: 2rem; color: var(--navy); }
+  .section-sub { text-align: center; color: var(--muted); margin-bottom: 2rem; }
+  .track-form { display: flex; gap: .6rem; justify-content: center; margin-bottom: 2rem; flex-wrap: wrap; }
+  .track-form input { padding: .9rem 1.1rem; font-size: 1rem; border: 2px solid #dbe2ec; border-radius: 8px; width: 300px; outline: none; }
+  .track-form input:focus { border-color: var(--orange); }
+
+  #track-result { display: none; background: var(--card); border-radius: 14px; padding: 0; box-shadow: 0 8px 30px rgba(11,37,69,.12); overflow: hidden; }
+  .result-head { background: var(--navy); color: #fff; padding: 1.2rem 1.6rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: .6rem; }
+  .result-head h3 { font-size: 1.25rem; letter-spacing: .5px; }
+  .badge { padding: .35rem 1rem; border-radius: 999px; font-size: .85rem; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; }
+  .badge.transit { background: #dbeafe; color: var(--blue); }
+  .badge.delivered { background: #dcfce7; color: var(--green); }
+  .badge.hold { background: #fef3c7; color: var(--amber); }
+  .badge.out { background: #ffedd5; color: var(--orange-dark); }
+  .result-body { padding: 1.6rem; }
+  .hold-banner { background: #fffbeb; border: 1px solid #fcd34d; border-radius: 10px; padding: 1rem 1.2rem; margin-bottom: 1.4rem; }
+  .hold-banner strong { color: var(--amber); }
+  .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.6rem; }
+  .detail { background: var(--bg); border-radius: 10px; padding: .9rem 1.1rem; }
+  .detail .label { font-size: .75rem; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); font-weight: 700; }
+  .detail .value { font-size: 1.02rem; font-weight: 700; color: var(--navy); }
+
+  /* Progress stepper */
+  .steps { display: flex; margin: 0.5rem 0 1.8rem; }
+  .step { flex: 1; text-align: center; position: relative; font-size: .82rem; font-weight: 600; color: var(--muted); }
+  .step .dot { width: 34px; height: 34px; border-radius: 50%; background: #e2e8f0; color: #94a3b8; display: flex; align-items: center; justify-content: center; margin: 0 auto .5rem; font-weight: 800; position: relative; z-index: 2; }
+  .step::before { content: ""; position: absolute; top: 17px; left: -50%; width: 100%; height: 3px; background: #e2e8f0; z-index: 1; }
+  .step:first-child::before { display: none; }
+  .step.done { color: var(--navy); }
+  .step.done .dot { background: var(--green); color: #fff; }
+  .step.done::before { background: var(--green); }
+  .step.active { color: var(--navy); }
+  .step.active .dot { background: var(--orange); color: #fff; box-shadow: 0 0 0 5px rgba(255,107,53,.18); }
+
+  /* Map */
+  #track-map { height: 320px; border-radius: 12px; margin-bottom: 1.6rem; border: 1px solid #e2e8f0; z-index: 1; }
+  .map-caption { text-align: center; color: var(--muted); font-size: .9rem; margin: -1rem 0 1.6rem; }
+
+  /* Timeline */
+  .timeline { list-style: none; margin-top: .5rem; }
+  .timeline h4 { color: var(--navy); margin-bottom: .8rem; font-size: 1.05rem; }
+  .timeline li { position: relative; padding: 0 0 1.2rem 1.8rem; border-left: 2px solid #e2e8f0; margin-left: .5rem; }
+  .timeline li:last-child { padding-bottom: 0; }
+  .timeline li::before { content: ""; position: absolute; left: -7px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: var(--orange); }
+  .timeline li:first-child::before { background: var(--green); box-shadow: 0 0 0 4px rgba(22,163,74,.15); }
+  .timeline .t { font-size: .82rem; color: var(--muted); font-weight: 600; }
+  .timeline .e { font-weight: 600; color: var(--navy); }
+  .error { color: var(--red); font-weight: 700; text-align: center; padding: 1.5rem; }
+
+  /* Services */
+  .services { padding: 4rem 2rem; max-width: 1100px; margin: auto; }
+  .cards { display: flex; gap: 1.6rem; flex-wrap: wrap; justify-content: center; }
+  .card { background: var(--card); border-radius: 14px; overflow: hidden; width: 320px; box-shadow: 0 6px 24px rgba(11,37,69,.1); transition: transform .18s, box-shadow .18s; }
+  .card:hover { transform: translateY(-6px); box-shadow: 0 14px 34px rgba(11,37,69,.16); }
+  .card img { width: 100%; height: 190px; object-fit: cover; display: block; }
+  .card-body { padding: 1.4rem; }
+  .card-body h3 { margin-bottom: .5rem; color: var(--navy); font-size: 1.15rem; }
+  .card-body p { color: var(--muted); font-size: .95rem; }
+
+  /* About / Contact */
+  .about { background: var(--navy); color: #fff; padding: 4rem 2rem; text-align: center; }
+  .about h2 { color: #fff; }
+  .about p { max-width: 680px; margin: auto; opacity: .9; font-size: 1.05rem; }
+  .about .pill { margin-top: 1.6rem; display: inline-block; }
+  .contact { padding: 4rem 2rem; max-width: 640px; margin: auto; text-align: center; }
+  .contact-card { background: var(--card); border-radius: 14px; padding: 2rem; box-shadow: 0 6px 24px rgba(11,37,69,.1); margin-top: 1.5rem; }
+  .contact-card p { margin: .5rem 0; font-size: 1.05rem; }
+  .contact-card strong { color: var(--navy); }
+  footer { background: var(--navy-dark); color: #fff; text-align: center; padding: 1.4rem; font-size: .9rem; opacity: .95; }
+
+  @media (max-width: 640px) {
+    .hero h2 { font-size: 2rem; }
+    .step { font-size: .68rem; }
+    nav a { margin-left: .8rem; }
+  }
 </style>
 </head>
 <body>
 
 <header>
-  <h1>SwiftHaul Freight</h1>
+  <div class="logo"><div class="logo-mark">S</div>SwiftHaul Freight</div>
   <nav>
     <a href="#track">Track</a>
     <a href="#services">Services</a>
@@ -52,17 +127,22 @@
 </header>
 
 <section class="hero">
-  <h2>Freight Delivery You Can Trust</h2>
-  <p>Fast, safe, and affordable shipping for businesses of every size.</p>
+  <h2>Freight Delivery <span>You Can Trust</span></h2>
+  <p>Fast, safe, and affordable shipping for businesses of every size — with live tracking from pickup to doorstep.</p>
   <a href="#track" class="btn">Track Your Package</a>
+  <a href="#services" class="btn btn-ghost">Our Services</a>
+  <div class="hero-pills">
+    <span class="pill">Nationwide Coverage</span>
+    <span class="pill">24/7 Live Tracking</span>
+    <span class="pill">Secure Handling</span>
+  </div>
 </section>
 
 <section class="track" id="track">
   <h2>Track Your Package</h2>
-  <p>Enter your tracking code below to see your shipment status.</p>
-  <br>
+  <p class="section-sub">Enter your tracking code to see live status, location map, and full shipment history.</p>
   <div class="track-form">
-    <input type="text" id="tracking-code" placeholder="e.g. SH123456">
+    <input type="text" id="tracking-code" placeholder="e.g. SH0016499" autocomplete="off">
     <button class="btn" onclick="trackPackage()">Track</button>
   </div>
   <div id="track-result"></div>
@@ -70,62 +150,92 @@
 
 <section class="services" id="services">
   <h2>Our Services</h2>
+  <p class="section-sub">End-to-end logistics for parcels, pallets, and full truckloads.</p>
   <div class="cards">
     <div class="card">
-      <h3>Local Delivery</h3>
-      <p>Same-day and next-day delivery within the city.</p>
+      <img src="img/service-local.webp" alt="Local delivery van handing a parcel to a customer">
+      <div class="card-body">
+        <h3>Local Delivery</h3>
+        <p>Same-day and next-day delivery within the city — parcels picked up and dropped off at your door.</p>
+      </div>
     </div>
     <div class="card">
-      <h3>Interstate Freight</h3>
-      <p>Reliable long-haul transport across the country.</p>
+      <img src="img/service-freight.webp" alt="Long-haul freight truck on the highway">
+      <div class="card-body">
+        <h3>Interstate Freight</h3>
+        <p>Reliable long-haul transport across the country, with GPS-tracked trucks and scheduled linehauls.</p>
+      </div>
     </div>
     <div class="card">
-      <h3>Warehousing</h3>
-      <p>Secure storage with easy pickup and dispatch.</p>
+      <img src="img/service-warehouse.webp" alt="Modern warehouse with stocked shelves">
+      <div class="card-body">
+        <h3>Warehousing</h3>
+        <p>Secure storage with easy pickup and dispatch — bonded space for short or long-term inventory.</p>
+      </div>
     </div>
   </div>
 </section>
 
 <section class="about" id="about">
   <h2>About Us</h2>
-  <p>SwiftHaul Freight is a startup built to make shipping simple. We combine modern logistics with personal service to move your goods on time, every time.</p>
+  <p>SwiftHaul Freight is a startup built to make shipping simple. We combine modern logistics with personal service to move your goods on time, every time — and you can watch every mile.</p>
+  <br><span class="pill">Founded 2026 · Florida, USA</span>
 </section>
 
 <section class="contact" id="contact">
   <h2>Contact Us</h2>
-  <p>Email: Trybnetwork@gmail.com</p>
-  <p>Phone: +12817898448</p>
-  <p>HQ Address: Florida, USA</p>
+  <p class="section-sub">Questions about a shipment? Reach out any time.</p>
+  <div class="contact-card">
+    <p><strong>Email:</strong> Trybnetwork@gmail.com</p>
+    <p><strong>Phone:</strong> +12817898448</p>
+    <p><strong>HQ:</strong> Florida, USA</p>
+  </div>
 </section>
 
 <footer>
   <p>&copy; 2026 SwiftHaul Freight. All rights reserved.</p>
 </footer>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 // ---- Shipment database ----
 // Add your real shipments here. Each tracking code maps to its details.
-// NOTE: keys with spaces must be wrapped in quotes, e.g. "Clearance Fee".
+// current: { city, lat, lng } drives the live location map.
+// step: 0 = picked up, 1 = in transit, 2 = out for delivery, 3 = delivered.
 
 var TRACKING_DB = {
   "SH0016499": {
     status: "In Transit",
+    service: "International Air Freight",
+    weight: "84 kg",
     origin: "London, UK",
-    destination: "Texas, USA",
+    destination: "Houston, Texas, USA",
+    eta: "Oct 6, 2026",
+    step: 1,
+    current: { city: "London Heathrow Transit Hub, UK", lat: 51.4700, lng: -0.4543 },
     events: [
       ["2026-10-01 08:00", "Package picked up in London"],
       ["2026-10-01 14:30", "Departed London hub"],
-      ["2026-10-02 09:15", "Arrived at London transit hub"]
+      ["2026-10-02 09:15", "Arrived at London Heathrow transit hub"],
+      ["2026-10-02 11:40", "Customs cleared — awaiting outbound flight"]
     ]
   },
   "SH789012": {
     status: "On Hold",
-    "Reason": "Awaiting Custom Clearance",
-    "Clearance Fee": "$2,010.00",
+    reason: "Awaiting Customs Clearance",
+    clearanceFee: "$2,010.00",
+    service: "International Sea Freight",
+    weight: "1,240 kg",
+    origin: "Shenzhen, China",
+    destination: "Houston, Texas, USA",
+    eta: "Pending clearance",
+    step: 1,
+    current: { city: "Port of Houston — Customs Hold", lat: 29.7604, lng: -95.3698 },
     events: [
-      ["2026-09-28 10:00", "Package picked up in Texas Warehouse"],
-      ["2026-09-29 16:45", "Out for delivery in Magnolia"],
-      ["2026-09-29 18:20", "Delivered — signed by recipient"]
+      ["2026-09-28 10:00", "Package picked up in Shenzhen"],
+      ["2026-09-29 16:45", "Departed Port of Shenzhen"],
+      ["2026-10-01 08:20", "Arrived Port of Houston"],
+      ["2026-10-01 11:05", "Held for customs inspection — clearance fee due"]
     ]
   }
 };
@@ -136,10 +246,22 @@ try {
   for (var code in saved) { TRACKING_DB[code] = saved[code]; }
 } catch (e) {}
 
+var trackMap = null;
+var STEP_LABELS = ["Picked up", "In Transit", "Out for Delivery", "Delivered"];
+
+function badgeClass(status) {
+  var s = (status || "").toLowerCase();
+  if (s.indexOf("deliver") === 0) return "delivered";
+  if (s.indexOf("hold") >= 0) return "hold";
+  if (s.indexOf("out for") >= 0) return "out";
+  return "transit";
+}
+
 function trackPackage() {
   var code = document.getElementById("tracking-code").value.trim().toUpperCase();
   var box = document.getElementById("track-result");
   box.style.display = "block";
+  if (trackMap) { trackMap.remove(); trackMap = null; }
   if (!code) {
     box.innerHTML = '<p class="error">Please enter a tracking code.</p>';
     return;
@@ -149,16 +271,63 @@ function trackPackage() {
     box.innerHTML = '<p class="error">No shipment found for code "' + code + '". Please check the code and try again.</p>';
     return;
   }
-  var html = "<h3>Tracking: " + code + "</h3>"
-    + '<p class="status">Status: ' + pkg.status + "</p>"
-    + "<p><strong>From:</strong> " + pkg.origin + " &nbsp; <strong>To:</strong> " + pkg.destination + "</p>";
-  if (pkg["Reason"]) html += "<p><strong>Reason:</strong> " + pkg["Reason"] + "</p>";
-  if (pkg["Clearance Fee"]) html += "<p><strong>Clearance Fee:</strong> " + pkg["Clearance Fee"] + "</p>";
-  html += "<br><ul>";
-  pkg.events.forEach(function (ev) {
-    html += "<li><strong>" + ev[0] + "</strong> — " + ev[1] + "</li>";
+
+  var html = '<div class="result-head"><h3>' + code + '</h3>'
+    + '<span class="badge ' + badgeClass(pkg.status) + '">' + pkg.status + '</span></div>'
+    + '<div class="result-body">';
+
+  if (pkg.status === "On Hold") {
+    html += '<div class="hold-banner"><strong>⚠ ' + (pkg.reason || "Shipment on hold") + '</strong>'
+      + (pkg.clearanceFee ? '<br>Clearance fee due: <strong>' + pkg.clearanceFee + '</strong>' : '')
+      + '</div>';
+  }
+
+  html += '<div class="detail-grid">'
+    + detail("Origin", pkg.origin) + detail("Destination", pkg.destination)
+    + detail("Service", pkg.service || "Standard Freight")
+    + detail("Weight", pkg.weight || "—")
+    + detail("Est. Delivery", pkg.eta || "—")
+    + detail("Current Location", (pkg.current && pkg.current.city) || "—")
+    + '</div>';
+
+  // Progress stepper
+  var step = Math.max(0, Math.min(3, pkg.step || 0));
+  html += '<div class="steps">';
+  for (var i = 0; i < 4; i++) {
+    var cls = i < step ? "done" : (i === step ? "active" : "");
+    var mark = i < step ? "✓" : (i + 1);
+    html += '<div class="step ' + cls + '"><div class="dot">' + mark + '</div><span>' + STEP_LABELS[i] + '</span></div>';
+  }
+  html += '</div>';
+
+  // Map
+  if (pkg.current && pkg.current.lat) {
+    html += '<div id="track-map"></div><p class="map-caption">📍 Live last-known location: ' + pkg.current.city + '</p>';
+  }
+
+  // Timeline
+  html += '<ul class="timeline"><h4>Shipment History</h4>';
+  (pkg.events || []).forEach(function (ev) {
+    html += '<li><div class="t">' + ev[0] + '</div><div class="e">' + ev[1] + '</div></li>';
   });
-  box.innerHTML = html + "</ul>";
+  html += '</ul></div>';
+
+  box.innerHTML = html;
+
+  if (pkg.current && pkg.current.lat && window.L) {
+    trackMap = L.map("track-map").setView([pkg.current.lat, pkg.current.lng], 9);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "&copy; OpenStreetMap contributors", maxZoom: 18
+    }).addTo(trackMap);
+    L.marker([pkg.current.lat, pkg.current.lng]).addTo(trackMap)
+      .bindPopup("<b>" + code + "</b><br>" + pkg.current.city).openPopup();
+    setTimeout(function () { trackMap.invalidateSize(); }, 150);
+  }
+  box.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+function detail(label, value) {
+  return '<div class="detail"><div class="label">' + label + '</div><div class="value">' + value + '</div></div>';
 }
 
 // Allow pressing Enter in the input to track
